@@ -7,8 +7,6 @@ class AppDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     AppBloc bloc = AppProvider.of(context);
 
-    bloc.readLists();
-
     return Drawer(
       child: StreamBuilder(
         stream: bloc.lists,
@@ -39,16 +37,14 @@ class AppDrawer extends StatelessWidget {
     return StreamBuilder(
       stream: bloc.activeList,
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return Text('Loading list...');
-        }
-
         return ListTile(
           leading: Icon(Icons.list),
           title: Text(
             list.title,
             style: TextStyle(
-              color: snapshot.data == list.id ? Colors.blue : null,
+              color: snapshot.hasData && snapshot.data == list.id
+                  ? Colors.blue
+                  : null,
             ),
           ),
           onTap: () {

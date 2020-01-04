@@ -10,13 +10,13 @@ class AppBody extends StatelessWidget {
 
     return StreamBuilder(
       stream: bloc.activeList,
-      builder: (context, snapshot) {
+      builder: (context, AsyncSnapshot<int> snapshot) {
         if (!snapshot.hasData) {
-          return Text('No tasks found');
+          return Text('Select a list from the drawer menu');
         }
 
         return ListProvider(
-          snapshot.data,
+          bloc.activeList,
           child: TasksListWidget(),
         );
       },

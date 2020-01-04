@@ -1,18 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:tasks/src/blocs/app_bloc.dart';
+import 'package:tasks/src/blocs/app_provider.dart';
 import 'package:tasks/src/blocs/list_bloc.dart';
 import 'package:tasks/src/blocs/list_provider.dart';
 import 'package:tasks/src/models/task.dart';
 
 class TasksListWidget extends StatelessWidget {
   Widget build(context) {
-    ListBloc bloc = ListProvider.of(context);
+    final AppBloc appBloc = AppProvider.of(context);
+    final ListBloc listBloc = ListProvider.of(context);
 
-    bloc.readTasks();
+    return StreamBuilder(
+      stream: appBloc.allowToAddTasks,
+      builder: (context, snapshot) {
+        if (snapshot.data ?? false) {
+          return Column(children: <Widget>[
+            Expanded(child: buildTasksList(listBloc)),
+            buildNewTaskForm(appBloc, listBloc),
+          ]);
+        }
 
-    return Column(children: <Widget>[
-      Expanded(child: buildTasksList(bloc)),
-      buildNewTaskForm(bloc),
-    ]);
+        return buildTasksList(listBloc);
+      },
+    );
   }
 
   Widget buildTasksList(ListBloc bloc) {
@@ -58,14 +68,18 @@ class TasksListWidget extends StatelessWidget {
     );
   }
 
-  Widget buildNewTaskForm(ListBloc bloc) {
+  Widget buildNewTaskForm(AppBloc appBloc, ListBloc listBloc) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Row(children: <Widget>[
         Icon(Icons.add),
         Expanded(
           child: TextField(
-            onSubmitted: bloc.addTask,
+            autofocus: true,
+            onSubmitted: (String value) {
+              listBloc.addTask(value);
+              appBloc.blockAddTasks();
+            },
           ),
         ),
       ]),
