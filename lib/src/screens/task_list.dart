@@ -3,7 +3,7 @@ import 'package:tasks/src/blocs/list_bloc.dart';
 import 'package:tasks/src/blocs/list_provider.dart';
 import 'package:tasks/src/models/task.dart';
 
-class TaskListWidget extends StatelessWidget {
+class TasksListWidget extends StatelessWidget {
   Widget build(context) {
     ListBloc bloc = ListProvider.of(context);
 

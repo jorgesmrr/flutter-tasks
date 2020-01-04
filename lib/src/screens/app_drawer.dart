@@ -4,7 +4,7 @@ import 'package:tasks/src/blocs/app_provider.dart';
 import 'package:tasks/src/models/tasks_list.dart';
 
 class AppDrawer extends StatelessWidget {
-  Widget build(context) {
+  Widget build(BuildContext context) {
     AppBloc bloc = AppProvider.of(context);
 
     bloc.readLists();
@@ -13,22 +13,22 @@ class AppDrawer extends StatelessWidget {
       child: StreamBuilder(
         stream: bloc.lists,
         builder: (context, AsyncSnapshot<List<TasksList>> snapshot) {
-          return Column(children: <Widget>[
-            Expanded(
-                child: snapshot.hasData
-                    ? buildList(bloc, snapshot.data)
-                    : Text('Loading...')),
-            buildNewListForm(bloc)
-          ]);
+          return snapshot.hasData
+              ? buildList(context, bloc, snapshot.data)
+              : Text('Loading lists...');
         },
       ),
     );
   }
 
-  Widget buildList(AppBloc bloc, List<TasksList> lists) {
+  Widget buildList(BuildContext context, AppBloc bloc, List<TasksList> lists) {
     return ListView.separated(
-      itemCount: lists.length,
+      itemCount: lists.length + 1,
       itemBuilder: (context, index) {
+        if (index == lists.length) {
+          return buildNewTasksListItem(context, bloc);
+        }
+
         return buildTasksListItem(bloc, lists[index]);
       },
       separatorBuilder: (BuildContext context, int index) => const Divider(),
@@ -40,7 +40,7 @@ class AppDrawer extends StatelessWidget {
       stream: bloc.activeList,
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return Text('Loading...');
+          return Text('Loading list...');
         }
 
         return ListTile(
@@ -62,17 +62,42 @@ class AppDrawer extends StatelessWidget {
     );
   }
 
-  Widget buildNewListForm(AppBloc bloc) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Row(children: <Widget>[
-        Icon(Icons.add),
-        Expanded(
-          child: TextField(
-            onSubmitted: bloc.addList,
+  Widget buildNewTasksListItem(BuildContext context, AppBloc bloc) {
+    return ListTile(
+      leading: Icon(Icons.add),
+      title: Text('Create new list...'),
+      onTap: () => showNewListDialog(context, bloc),
+    );
+  }
+
+  Future showNewListDialog(BuildContext context, AppBloc bloc) {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        final textController = new TextEditingController();
+
+        return AlertDialog(
+          title: Text('Create new list'),
+          content: TextField(
+            decoration: InputDecoration(labelText: 'Name'),
+            controller: textController,
           ),
-        ),
-      ]),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Cancel'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            FlatButton(
+              child: Text('Create'),
+              onPressed: () {
+                bloc.addList(textController.text);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

@@ -12,12 +12,12 @@ class AppBody extends StatelessWidget {
       stream: bloc.activeList,
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return Text('No list found');
+          return Text('No tasks found');
         }
 
         return ListProvider(
           snapshot.data,
-          child: TaskListWidget(),
+          child: TasksListWidget(),
         );
       },
     );
