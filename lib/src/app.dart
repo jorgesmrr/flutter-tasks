@@ -8,6 +8,8 @@ class TasksApp extends StatelessWidget {
   Widget build(context) {
     AppBloc bloc = AppProvider.of(context);
 
+    bloc.readLists();
+
     return StreamBuilder(
       stream: bloc.allowToAddTasks,
       builder: (context, snapshot) {
